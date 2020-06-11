@@ -1,0 +1,17 @@
+kind: pipeline
+type: kubernetes
+name: default
+
+steps:
+  - name: publish
+    image: banzaicloud/drone-kaniko
+    settings:
+      registry: registry.hub.docker.com
+      repo: tomgo/api
+      cache: true
+      auto_tag: true
+      skip_tls_verify: false
+      username:
+        from_secret: docker-username
+      password:
+        from_secret: docker-password
