@@ -14,13 +14,17 @@ async fn index(_req: HttpRequest) -> impl Responder {
     "Hello!"
 }
 
+async fn test(_req: HttpRequest) -> impl Responder {
+    "Test!"
+}
+
 #[actix_rt::main]
 async fn main() -> Result<()> {
     env_logger::init();
 
     let mut listenfd = ListenFd::from_env();
 
-    let database_url = env::var("DATABASE_URL").expect("DATABASE_URL is not set in .env file");
+    let database_url = env::var("DATABASE_URL").unwrap();
     let db_pool = PgPool::new(&database_url).await?;
 
     let mut server = HttpServer::new(move || {
@@ -28,6 +32,7 @@ async fn main() -> Result<()> {
             .data(db_pool.clone())
             .wrap(Logger::default())
             .route("/", web::get().to(index))
+            .route("/test", web::get().to(test))
             .configure(todo::init)
     });
 
@@ -38,6 +43,7 @@ async fn main() -> Result<()> {
     };
 
     info!("Starting server");
+    info!("A new version has been started! SUCCESSSSSS");
     server.run().await?;
 
     Ok(())

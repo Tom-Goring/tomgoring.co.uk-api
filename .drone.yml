@@ -3,15 +3,25 @@ type: kubernetes
 name: default
 
 steps:
-  - name: publish
-    image: banzaicloud/drone-kaniko
+  - name: "Build and Publish"
+    image: banzaicloud/drone-kaniko:0.5.1
     settings:
-      registry: registry.hub.docker.com
+      registry: registry.tomgoring.co.uk
       repo: tomgo/api
-      cache: true
       auto_tag: true
+      cache: true
       skip_tls_verify: false
       username:
-        from_secret: docker-username
+        from_secret: docker_username
       password:
-        from_secret: docker-password
+        from_secret: docker_password
+  - name: "Deploy"
+    image: sinlead/drone-kubectl
+    settings:
+      kubernetes_token:
+        from_secret: kube_svacct_token
+    commands:
+      - kubectl delete pods -l app=tgcu
+
+image_pull_secrets:
+  - registry-auth-json
