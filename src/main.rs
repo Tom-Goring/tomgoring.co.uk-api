@@ -3,6 +3,7 @@ extern crate log;
 extern crate env_logger;
 
 use actix_web::{web, App, HttpRequest, HttpServer, Responder, middleware::Logger};
+use actix_cors::Cors;
 use listenfd::ListenFd;
 use std::env;
 use sqlx::PgPool;
@@ -31,6 +32,12 @@ async fn main() -> Result<()> {
         App::new()
             .data(db_pool.clone())
             .wrap(Logger::default())
+            .wrap(
+                Cors::new()
+                    .allowed_origin("https://www.tomgoring.co.uk")
+                    .allowed_origin("https://tomgoring.co.uk")
+                    .finish(),
+            )
             .route("/", web::get().to(index))
             .route("/test", web::get().to(test))
             .configure(todo::init)
